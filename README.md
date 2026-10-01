@@ -30,11 +30,13 @@ Python 3.11+ is used locally. The Vercel runtime chooses its supported Python ve
 For Streamlit install requirements-streamlit.txt, then run streamlit run app.py.
 
 ## Vercel
-vercel.json routes requests to the FastAPI entry point and excludes local environments, credentials, evaluation artifacts and archives from the function bundle.
+Vercel detects the FastAPI entry point in api/index.py and handles application routes natively. vercel.json sets the function duration and excludes local environments, credentials, evaluation artifacts and archives from the function bundle. Do not add a catch-all rewrite to /api/index; it changes the path seen by FastAPI and breaks its routes.
 1. Authenticate with vercel login.
-2. Link this repository to a Vercel project (framework: Other, project root: repository root).
+2. Link this repository to a Vercel project (framework: FastAPI, project root: repository root).
 3. Configure GOOGLE_API_KEY and WEATHER_API_KEY as server-side environment variables. Never put them in web/ or GitHub.
 4. Deploy with vercel --prod. Check /api/health and generate a real plan before claiming the release is functional.
+
+Deployment check on 1 October 2026: https://voyager-ai-theta.vercel.app serves the homepage, JavaScript, health endpoint, Paris map lookup and PDF export successfully. Desktop/mobile interface smoke checks passed using fixture model responses. Production AI generation and weather remain unverified until the server-side keys are configured; these checks are not production model-latency measurements. The health endpoint confirms application availability, not provider authentication.
 
 The web version streams newline-delimited JSON events. The browser renders sanitized Markdown, keeps the last successful plan if regeneration fails, and fetches the PDF on demand rather than rebuilding it during chat. Secrets stay server-side.
 
