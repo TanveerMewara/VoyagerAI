@@ -1,9 +1,7 @@
-streamlit
-langchain
-langgraph
-langchain-google-genai
-google-generativeai
+fastapi
+uvicorn
+google-genai
 python-dotenv
 requests
 reportlab
-pandas
+cachetools

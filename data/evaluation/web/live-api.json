@@ -1,0 +1,9 @@
+{
+  "type": "done",
+  "generation_seconds": 22.349,
+  "first_text_seconds": 19.902,
+  "message": null,
+  "mode": "One real local FastAPI request, not a Vercel production measurement",
+  "words": 314,
+  "pdf_success": true
+}

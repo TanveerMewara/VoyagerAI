@@ -19,6 +19,8 @@
 import os
 import requests
 from dotenv import load_dotenv
+from cachetools import TTLCache, cached
+from threading import RLock
 
 load_dotenv()
 
@@ -26,17 +28,24 @@ API_KEY = os.getenv("WEATHER_API_KEY")
 
 
 def get_weather(city):
+    if not API_KEY:
+        return "Weather information unavailable: no weather API key configured."
+    return _get_weather(city.strip().casefold(), API_KEY)
+
+
+@cached(cache=TTLCache(maxsize=128, ttl=600), lock=RLock())
+def _get_weather(city, api_key):
 
     url = "https://api.openweathermap.org/data/2.5/weather"
 
     params = {
         "q": city,
-        "appid": API_KEY,
+        "appid": api_key,
         "units": "metric"
     }
 
     try:
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=(3.05, 5))
 
         data = response.json()
 

@@ -1,0 +1,26 @@
+{
+  "mode": "Local deterministic checks and microbenchmarks; mocked APIs; fixture PDF, not live output",
+  "checks": {
+    "streaming_assembles_and_updates": true,
+    "non_streaming_returns_text": true,
+    "weather_cache_reuses_normalized_destination": true,
+    "weather_has_connect_and_read_timeouts": true,
+    "weather_timeout_fallback": true,
+    "missing_weather_key_skips_network": true
+  },
+  "passed": 6,
+  "total": 6,
+  "pdf_fixture": {
+    "runs": 10,
+    "mean_ms": 31.847,
+    "median_ms": 26.691,
+    "max_ms": 76.267
+  },
+  "map_construction": {
+    "runs": 10,
+    "mean_ms": 23.492,
+    "median_ms": 19.348,
+    "max_ms": 55.153
+  },
+  "code_derived_removed_delay_seconds": 2.5
+}

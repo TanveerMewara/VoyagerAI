@@ -1,76 +1,4 @@
-# from agents.planner_agent import planner_agent
-# from agents.budget_agent import budget_agent
-# from agents.hotel_agent import hotel_agent
-# from tools.weather import get_weather
-# from utils.report_generator import generate_report
-
-# def supervisor_agent(destination,
-#                      days,
-#                      budget,
-#                      travelers,
-#                      interests,
-#                      departure):
-
-#     itinerary = planner_agent(
-#         destination,
-#         days,
-#         interests
-#     )
-
-#     budget_plan = budget_agent(
-#         destination,
-#         days,
-#         budget,
-#         travelers
-#     )
-
-#     hotel_plan = hotel_agent(
-#         destination,
-#         budget,
-#         travelers
-#     )
-
-#     weather = "🌤 TEST WEATHER WORKING"
-
-#     report = generate_report(
-#     itinerary,
-#     budget_plan,
-#     hotel_plan,
-#     weather
-#     )
-
-#     return report
-
-# #     final_response = f"""
-# # # 🌍 Voyager AI Travel Plan
-
-# # ---
-
-# # ## 📅 Itinerary
-
-# # {itinerary}
-
-# # ---
-
-# # ## 💰 Budget Estimate
-
-# # {budget_plan}
-
-# # ---
-
-# # ## 🏨 Hotel Recommendations
-
-# # {hotel_plan}
-
-# # ---
-
-# # ## 🌤 Weather
-
-# # {weather}
-
-# # """
-
-# #     return final_response
+from concurrent.futures import ThreadPoolExecutor
 
 from utils.gemini import ask_gemini
 from tools.weather import get_weather
@@ -82,74 +10,52 @@ def supervisor_agent(
     budget,
     travelers,
     interests,
-    departure
+    departure,
+    on_chunk=None
 ):
-
-    weather = get_weather(destination)
-
     prompt = f"""
-You are an expert AI Travel Planner.
-
-Create a complete travel plan using the following details.
-
+You are an expert travel planner. Return a concise, useful plan immediately.
 Destination: {destination}
-
 Days: {days}
-
 Budget: {budget}
-
-Travelers: {travelers}
-
-Departure City: {departure}
-
+Traveler type: {travelers}
+Departure city: {departure}
 Interests: {interests}
 
-Current Weather:
-{weather}
-
-Generate the response in this exact format.
-
----
-
-# 📅 Itinerary
-
-Provide a day-wise itinerary.
-
----
-
-# 💰 Budget Breakdown
-
-Estimate expenses for:
-
-- Flights
-- Hotel
-- Food
-- Local Transport
-- Activities
-
-Mention Total Cost.
-
----
-
-# 🏨 Hotel Recommendations
-
-Recommend 3 hotels with:
-
-- Name
-- Approximate Price
-- Why Recommended
-
----
-
-# 🌤 Weather
-
-Explain how the weather affects the trip.
-
----
-
-# 🎒 Travel Tips
-
-Give useful travel tips.
+Use exactly these Markdown sections separated by ---:
+# Itinerary
+For every day, give one short bullet each for morning, afternoon and evening.
+Include arrival and departure. Avoid introductions and repeated trip details.
+# Budget Breakdown
+Give a compact table: return travel, hotel, food, local transport, activities,
+contingency and total. Keep arithmetic consistent. Budget {max(0, days - 1)}
+hotel nights unless an extra night is explicitly needed. State headcount
+assumptions for Family/Friends; the group size is unknown.
+# Hotel Recommendations
+Give three options with an approximate nightly price and one-line reason.
+Prices and availability are estimates, not verified live quotes.
+# Travel Tips
+Give five short actionable tips, including checking current opening times.
+Do not claim to have checked live opening times or ticket prices.
+Do not include a weather section or invent current weather readings;
+a separate weather tool adds the current observation after your response.
 """
-
-    return ask_gemini(prompt)
+    # Fetch weather in parallel so the first model text does not wait for it.
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        weather_future = executor.submit(get_weather, destination)
+        report = ask_gemini(
+            prompt, on_chunk=on_chunk,
+            max_output_tokens=min(8192, max(2048, 1024 + days * 180))
+        )
+        try:
+            weather = weather_future.result()
+        except Exception:
+            weather = "Weather information unavailable."
+    report += (
+        "\n\n---\n\n# Weather\n\n" + weather
+        + "\n\nCurrent conditions only, not a forecast for your travel dates. "
+        "Check the forecast before departure; pack layers and rain protection as needed."
+    )
+    if on_chunk is not None:
+        on_chunk(report)
+    return report

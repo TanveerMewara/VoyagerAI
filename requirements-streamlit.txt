@@ -1,0 +1,10 @@
+-r requirements.txt
+streamlit
+streamlit-folium
+folium
+plotly
+graphviz
+pandas
+langchain
+langgraph
+langchain-google-genai

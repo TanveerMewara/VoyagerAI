@@ -1,5 +1,10 @@
 venv/
 .env
+.env.*
+!.env.example
+.vercel/
+.tools/
+*.zip
 __pycache__/
 *.pyc
 

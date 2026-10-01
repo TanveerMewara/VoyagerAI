@@ -1,0 +1,12 @@
+venv
+.env
+.env.*
+!.env.example
+.git
+.tools
+__pycache__
+data
+vector_db
+*.zip
+*.pdf
+tests

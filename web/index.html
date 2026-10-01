@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voyager AI | Travel Planner</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/static/style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script defer src="/static/app.js"></script>
+</head>
+<body>
+<header><div class="brand"><i data-lucide="compass"></i><strong>Voyager AI</strong></div><span>Travel workspace</span><a href="https://github.com/TanveerMewara/VoyagerAI" target="_blank" rel="noreferrer" aria-label="GitHub repository" title="GitHub repository"><i data-lucide="github"></i></a></header>
+<main>
+<aside>
+<h1>Plan your trip</h1>
+<form id="trip-form">
+<label>Destination<input name="destination" required maxlength="120" placeholder="Paris, Tokyo, Goa"></label>
+<div class="fields"><label>Days<input name="days" type="number" min="1" max="30" value="5" required></label><label>Travelers<select name="travelers"><option>Solo</option><option>Couple</option><option>Family</option><option>Friends</option></select></label></div>
+<label>Total budget<input name="budget" maxlength="120" placeholder="EUR 1500 or INR 30000"></label>
+<label>Departure city<input name="departure" maxlength="120" placeholder="Mumbai"></label>
+<label>Interests<textarea name="interests" rows="3" maxlength="1500" placeholder="Food, museums, nature"></textarea></label>
+<button id="generate" type="submit"><i data-lucide="sparkles"></i><span>Generate plan</span></button>
+</form>
+<p id="status" role="status" aria-live="polite"></p>
+<div id="error" role="alert" hidden></div>
+<section class="workflow"><h2>Planning workflow</h2><ol><li>Trip preferences</li><li>Gemini planning <span>Parallel</span></li><li>Live weather <span>Parallel</span></li><li>Combined report</li><li>Map, budget &amp; PDF</li></ol></section>
+<p class="model">Gemini 2.5 Flash · OpenWeather</p>
+</aside>
+<div class="workspace">
+<nav aria-label="Workspace views"><button type="button" data-tab="report" class="active"><i data-lucide="file-text"></i>Plan</button><button type="button" data-tab="analytics"><i data-lucide="chart-pie"></i>Budget</button><button type="button" data-tab="map"><i data-lucide="map"></i>Map</button><button type="button" data-tab="chat"><i data-lucide="messages-square"></i>Chat</button></nav>
+<div class="summary"><span id="trip-summary">Your next trip</span><span id="timing"></span><button id="download" type="button" class="icon-button" title="Download PDF" aria-label="Download PDF" disabled><i data-lucide="download"></i></button></div>
+<section id="report" class="view active"><div id="welcome"><img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="Eiffel Tower and Paris skyline"><h2>Your next destination</h2></div><article id="report-content" hidden></article></section>
+<section id="analytics" class="view"><h2>Budget analytics</h2><p id="budget-note">Generate a plan to see its estimated expense breakdown.</p><div class="chart-wrap"><canvas id="budget-chart" aria-label="Estimated expense breakdown" role="img"></canvas></div><div id="budget-table"></div></section>
+<section id="map" class="view"><h2>Destination map</h2><p id="map-note">Choose a destination and generate your plan.</p><div id="destination-map"></div></section>
+<section id="chat" class="view"><h2>Trip conversation</h2><div id="chat-messages"></div><form id="chat-form"><label class="sr-only" for="question">Ask about your trip</label><input id="question" required maxlength="2000" placeholder="Ask about hotels, transport, or your itinerary" disabled><button id="send" type="submit" title="Send message" aria-label="Send message" disabled><i data-lucide="send"></i></button></form></section>
+</div>
+</main>
+<footer>Prices are estimates. Verify availability, opening hours and your travel-date forecast before booking.</footer>
+</body>
+</html>

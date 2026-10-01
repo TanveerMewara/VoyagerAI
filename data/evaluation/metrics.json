@@ -1,0 +1,108 @@
+{
+  "evaluated_at": "2026-10-01T18:14:56.204603+05:30",
+  "mode": "live APIs; sequential smoke sample, not a load test",
+  "attempted": 3,
+  "planned": 3,
+  "successful": 3,
+  "success_rate_percent": 100.0,
+  "mean_generation_seconds": 29.7612,
+  "mean_first_text_seconds": 17.8105,
+  "results": [
+    {
+      "destination": "Paris",
+      "requested_days": 3,
+      "weather_seconds": 6.4283,
+      "weather_available": true,
+      "success": true,
+      "section_checks": {
+        "itinerary": true,
+        "budget breakdown": true,
+        "hotel recommendations": true,
+        "weather": true,
+        "travel tips": true
+      },
+      "section_coverage_percent": 100.0,
+      "requested_days_present": true,
+      "characters": 8647,
+      "words": 1333,
+      "tokens": {
+        "prompt_token_count": 216,
+        "candidates_token_count": 2331,
+        "total_token_count": 4179
+      },
+      "generation_seconds": 29.1872,
+      "pdf_success": true,
+      "pdf_bytes": 8570,
+      "pdf_seconds": 1.1904,
+      "first_text_seconds": 16.6073,
+      "stream_updates": 49
+    },
+    {
+      "destination": "Tokyo",
+      "requested_days": 5,
+      "weather_seconds": 4.9818,
+      "weather_available": true,
+      "success": true,
+      "section_checks": {
+        "itinerary": true,
+        "budget breakdown": true,
+        "hotel recommendations": true,
+        "weather": true,
+        "travel tips": true
+      },
+      "section_coverage_percent": 100.0,
+      "requested_days_present": true,
+      "characters": 11128,
+      "words": 1676,
+      "tokens": {
+        "prompt_token_count": 220,
+        "candidates_token_count": 2926,
+        "total_token_count": 5919
+      },
+      "generation_seconds": 34.2174,
+      "pdf_success": true,
+      "pdf_bytes": 10505,
+      "pdf_seconds": 1.2479,
+      "first_text_seconds": 20.3227,
+      "stream_updates": 61
+    },
+    {
+      "destination": "Goa",
+      "requested_days": 2,
+      "weather_seconds": 4.3868,
+      "weather_available": true,
+      "success": true,
+      "section_checks": {
+        "itinerary": true,
+        "budget breakdown": true,
+        "hotel recommendations": true,
+        "weather": true,
+        "travel tips": true
+      },
+      "section_coverage_percent": 100.0,
+      "requested_days_present": true,
+      "characters": 7556,
+      "words": 1176,
+      "tokens": {
+        "prompt_token_count": 217,
+        "candidates_token_count": 2051,
+        "total_token_count": 4459
+      },
+      "generation_seconds": 25.8791,
+      "pdf_success": true,
+      "pdf_bytes": 7645,
+      "pdf_seconds": 0.5155,
+      "first_text_seconds": 16.5016,
+      "stream_updates": 43
+    }
+  ],
+  "limitations": [
+    "Small sample: no production reliability, throughput or p95/p99 claim.",
+    "Section and day checks measure format coverage, not factual correctness.",
+    "Hotel existence, prices, budget arithmetic, safety and recommendation relevance require independent validation.",
+    "No measured before/after baseline; the removed 2.5-second wait is a code-derived saving.",
+    "Generation timings include weather and model calls but exclude UI rendering and PDF creation.",
+    "Cached weather can make repeated runs faster; no per-request weather freshness claim.",
+    "Token counts are provider-reported when available; monetary cost is not estimated."
+  ]
+}

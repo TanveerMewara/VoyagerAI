@@ -1,5 +1,7 @@
 import streamlit as st
 import time
+import re
+from io import BytesIO
 
 from agents.supervisor_agent import supervisor_agent
 from tools.pdf_generator import generate_pdf
@@ -151,9 +153,12 @@ st.divider()
 # GENERATE PLAN
 # ==========================================================
 
+if "generation_error" in st.session_state:
+    st.error(st.session_state.pop("generation_error"))
+
 if generate:
 
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     if destination.strip() == "":
 
@@ -178,7 +183,6 @@ if generate:
 
     progress.progress(10)
 
-    time.sleep(0.5)
 
     planner_status.info("🟡 Planner Agent Working...")
 
@@ -186,7 +190,6 @@ if generate:
 
     progress.progress(30)
 
-    time.sleep(0.5)
 
     budget_status.info("🟡 Budget Agent Working...")
 
@@ -194,7 +197,6 @@ if generate:
 
     progress.progress(50)
 
-    time.sleep(0.5)
 
     hotel_status.info("🟡 Hotel Agent Working...")
 
@@ -202,7 +204,6 @@ if generate:
 
     progress.progress(70)
 
-    time.sleep(0.5)
 
     weather_status.info("🟡 Weather Tool Working...")
 
@@ -210,7 +211,7 @@ if generate:
 
     progress.progress(90)
 
-    time.sleep(0.5)
+    preview = st.empty()
 
     try:
 
@@ -220,20 +221,30 @@ if generate:
             budget,
             travelers,
             interests,
-            departure
+            departure,
+            on_chunk=preview.markdown
         )
 
     except Exception as e:
+
+        if st.session_state.travel_plan:
+            st.session_state.generation_error = (
+                f"The new request failed. Your previous plan is still available. {e}"
+            )
+            st.rerun()
 
         st.error(f"❌ {e}")
 
         st.stop()
 
-    execution_time = round(time.time() - start_time, 2)
+    preview.empty()
+    execution_time = round(time.perf_counter() - start_time, 2)
 
     st.session_state.execution_time = execution_time
 
     st.session_state.travel_plan = response
+    st.session_state.chat_history = []
+    st.session_state.pop("pdf_report", None)
 
     st.session_state.trip_details = {
 
@@ -290,6 +301,27 @@ if st.session_state.travel_plan:
     # ==========================================================
     # BUDGET ANALYTICS
     # ==========================================================
+
+    st.subheader("🌍 AI Generated Travel Report")
+
+    sections = re.split(r"(?m)(?=^#\s)", response)
+
+    for section in sections:
+
+        section = re.sub(r"(?m)^---[ \t]*$", "", section).strip()
+
+        if section:
+
+            title = section.split("\n")[0]
+
+            with st.expander(
+                title,
+                expanded=True
+            ):
+
+                st.markdown(section)
+
+    st.divider()
 
     st.subheader("📊 Budget Analytics")
 
@@ -407,7 +439,8 @@ if st.session_state.travel_plan:
         st_folium(
             travel_map,
             width=900,
-            height=450
+            height=450,
+            returned_objects=[]
         )
 
     except Exception as e:
@@ -422,27 +455,6 @@ if st.session_state.travel_plan:
     # AI GENERATED REPORT
     # ==========================================================
 
-    st.subheader("🌍 AI Generated Travel Report")
-
-    sections = response.split("---")
-
-    for section in sections:
-
-        section = section.strip()
-
-        if section:
-
-            title = section.split("\n")[0]
-
-            with st.expander(
-                title,
-                expanded=True
-            ):
-
-                st.markdown(section)
-
-    st.divider()
-
     # ==========================================================
     # DOWNLOAD REPORT
     # ==========================================================
@@ -451,16 +463,18 @@ if st.session_state.travel_plan:
 
     try:
 
-        pdf_file = generate_pdf(response)
+        if "pdf_report" not in st.session_state:
+            pdf_buffer = BytesIO()
+            generate_pdf(response, filename=pdf_buffer)
+            st.session_state.pdf_report = pdf_buffer.getvalue()
 
-        with open(pdf_file, "rb") as file:
-
-            st.download_button(
+        st.download_button(
                 label="📥 Download Complete Travel Plan",
-                data=file,
+                data=st.session_state.pdf_report,
                 file_name="VoyagerAI_TravelPlan.pdf",
                 mime="application/pdf",
-                width="stretch"
+                width="stretch",
+                on_click="ignore"
             )
 
     except Exception as e:
@@ -513,6 +527,7 @@ if st.session_state.travel_plan:
 
     if user_question:
 
+        chat_preview = st.empty()
         st.session_state.chat_history.append(
             (
                 "user",
@@ -526,7 +541,8 @@ if st.session_state.travel_plan:
 
                 answer = ask_followup(
                     st.session_state.travel_plan,
-                    user_question
+                    user_question,
+                    on_chunk=chat_preview.markdown
                 )
 
             except Exception as e:
@@ -539,6 +555,7 @@ if st.session_state.travel_plan:
                 answer
             )
         )
+        chat_preview.empty()
 
     for role, message in st.session_state.chat_history:
 
