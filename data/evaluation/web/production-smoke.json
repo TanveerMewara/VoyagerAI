@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-01",
+  "origin": "https://voyager-ai-theta.vercel.app",
+  "sample_count": 1,
+  "request": {
+    "destination": "Paris",
+    "days": 2,
+    "budget": "EUR 1000",
+    "travelers": "Solo",
+    "interests": "Museums and parks",
+    "departure": "London"
+  },
+  "plan_http_status": 200,
+  "client_first_text_seconds": 4.212,
+  "client_completion_seconds": 6.387,
+  "server_first_text_seconds": 0.588,
+  "server_generation_seconds": 2.577,
+  "report_words": 262,
+  "current_weather_observation_present": true,
+  "pdf_http_status": 200,
+  "pdf_signature_valid": true,
+  "followup_chat_completed": true,
+  "limitations": [
+    "Single production smoke request; not p95, load testing or an SLA.",
+    "Client timing includes request and network overhead; server timing does not.",
+    "Cold-start status was not established.",
+    "Travel claims and estimated prices were not independently verified."
+  ]
+}
